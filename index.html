@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>Study AI 📚</title>
+
+<style>
+body{
+    font-family: Arial;
+    background:#f4f4f4;
+}
+
+#chat{
+    width:400px;
+    margin:50px auto;
+    background:white;
+    padding:20px;
+    border-radius:10px;
+}
+
+#box{
+    height:300px;
+    overflow-y:auto;
+    border:1px solid #ddd;
+    padding:10px;
+}
+
+.user{
+    text-align:right;
+    color:blue;
+    margin:5px;
+}
+
+.bot{
+    text-align:left;
+    color:green;
+    margin:5px;
+}
+
+.loading{
+    text-align:left;
+    color:gray;
+    font-style:italic;
+}
+
+.dots::after {
+    content: '...';
+    animation: dots 1s steps(3, end) infinite;
+}
+
+@keyframes dots {
+    0% { content: '.'; }
+    33% { content: '..'; }
+    66% { content: '...'; }
+}
+
+input{
+    width:70%;
+    padding:10px;
+}
+
+button{
+    padding:10px;
+}
+</style>
+
+</head>
+
+<body>
+
+<div id="chat">
+
+<h3>📚 Study AI</h3>
+
+<div id="box"></div>
+
+<input id="q" placeholder="Ask question"
+onkeydown="if(event.key==='Enter'){send()}">
+
+<button onclick="send()">Send</button>
+
+</div>
+
+<script>
+
+function add(text, cls){
+    let d = document.createElement("div");
+    d.className = cls;
+    d.innerText = text;
+    document.getElementById("box").appendChild(d);
+}
+
+function addLoading(){
+    let d = document.createElement("div");
+    d.className = "loading dots";
+    d.id = "loading";
+    d.innerText = "Loading your answer";
+    document.getElementById("box").appendChild(d);
+}
+
+async function send(){
+
+    let q = document.getElementById("q").value;
+    if(q.trim() === "") return;
+
+    add("You: " + q, "user");
+
+    document.getElementById("q").value = "";
+
+    // ⏳ loading animation
+    addLoading();
+
+    let res = await fetch("/ask", {
+        method:"POST",
+        headers:{"Content-Type":"application/json"},
+        body:JSON.stringify({question:q})
+    });
+
+    let data = await res.json();
+
+    // remove loading
+    document.getElementById("loading").remove();
+
+    add("AI: " + data.answer, "bot");
+}
+
+</script>
+
+</body>
+</html>
